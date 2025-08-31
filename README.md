@@ -12,17 +12,17 @@ SARIF Reviewer is a Python tool designed to help developers and security teams q
 
 ## 📦 Installation
 
-    ```bash
-    # Clone the repository
-    git clone https://github.com/dmdhrumilmistry/sarif-reviewer.git
-    cd sarif-reviewer
+```bash
+# Clone the repository
+git clone https://github.com/dmdhrumilmistry/sarif-reviewer.git
+cd sarif-reviewer
 
-    # (Optional) Create a virtual environment
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+# (Optional) Create a virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-    pip install .
-    ```
+pip install .
+```
 
 ## 🛠️ Usage
 
