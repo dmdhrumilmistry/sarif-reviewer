@@ -81,15 +81,22 @@ class ContextParser:
         return self.tree
 
     def get_contextual_code_for_point(
-        self, point: tuple, encoding: str = "utf-8"
+        self, starting_point: tuple, ending_point: tuple = None, encoding: str = "utf-8"
     ) -> str:
         if not self.tree:
             return ""
-
-        cursor = self.tree.walk()
-        cursor.goto_first_child_for_point(point)
-
-        return cursor.node.text.decode(encoding)
+        
+        if starting_point and ending_point:
+            logger.debug(f"Getting contextual code from {starting_point} to {ending_point}")
+            node = self.tree.root_node.descendant_for_point_range(starting_point, ending_point)
+            return node.text.decode(encoding)
+        elif starting_point:
+            logger.debug(f"Getting contextual code from Starting point: {starting_point}")
+            cursor = self.tree.walk()
+            cursor.goto_first_child_for_point(starting_point)
+            return cursor.node.text.decode(encoding)
+        
+        return ""
 
 
 if __name__ == "__main__":

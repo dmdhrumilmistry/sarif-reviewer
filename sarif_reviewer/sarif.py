@@ -10,7 +10,7 @@ logger = get_logger(__name__)
 
 
 class ContextualResult(Result):
-    code_snippet: Optional[List[str]] = None
+    code_snippets: Optional[List[str]] = None
 
 
 class SarifParser:
@@ -36,24 +36,31 @@ class SarifParser:
                 logger.debug(f"Rule: {result.rule_id}, Level: {result.level}")
                 logger.debug(f"Message: {result.message.text}")
                 
-                if contextual_result.code_snippet is None:
-                    contextual_result.code_snippet = []
+                if contextual_result.code_snippets is None:
+                    contextual_result.code_snippets = []
 
                 if result.locations:
                     for location in result.locations:
                         context_parser = ContextParser(language)
                         file_path = location.physical_location.artifact_location.uri
                         root_node = context_parser.parse(file_path, base_dir=base_dir)
-                        pt = (
+                        starting_pt = (
                             location.physical_location.region.start_line,
                             location.physical_location.region.start_column,
                         )
+                        # ending_pt = (
+                        #     location.physical_location.region.end_line or location.physical_location.region.start_line,
+                        #     location.physical_location.region.end_column,
+                        # )
                         code_snippet = context_parser.get_contextual_code_for_point(
-                            pt, encoding=encoding
+                            starting_point=starting_pt,
+                            # ending_point=ending_pt,
+                            encoding=encoding
                         )
+                        logger.info(f"Extracted code snippet for {file_path}: {code_snippet}")
 
                         if code_snippet:
-                            contextual_result.code_snippet.append(code_snippet)
+                            contextual_result.code_snippets.append(code_snippet)
                             results.append(contextual_result)
                             logger.debug(f"Code Snippet: {code_snippet}")
                         else:

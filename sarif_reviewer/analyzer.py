@@ -1,11 +1,26 @@
 from openai import OpenAI
-
+from sarif_reviewer.sarif import ContextualResult
 
 class AIAnalyzer:
     def __init__(
         self, base_url: str = "http://localhost:11434/v1", api_key: str = "ollama"
     ):
         self.openai_client = OpenAI(base_url=base_url, api_key=api_key)
+
+    def create_prompt(self, contextual_result: ContextualResult) -> str:
+        code_snippets = "\n\n".join(contextual_result.code_snippets)
+        return f"""
+        Analyze the following code snippet for vulnerabilities detected by sarif and search for any
+        other vulnerability if present and provide fix suggestions. Only return vulnerabilities that
+        has high confidence. Limit response to few lines so that developers can take action quickly.
+        For valid vulnerabilities you may provide fix code snippets that has high confidence.
+
+        Below are sarif results:
+        Rule: {contextual_result.rule_id}, Level: {contextual_result.level}
+        Message: {contextual_result.message.text}
+        Code Snippets:
+        {code_snippets}
+        """
 
     def analyze(self, prompt_text: str, model: str = "deepseek-r1:latest", stream: bool = False):
         messages = [
