@@ -1,29 +1,12 @@
-import json
-from sarif_pydantic import Sarif
+from argparse import ArgumentParser
+from .sarif import SarifParser
 
-# Load from a file
-with open("result.sarif", "r") as f:
-    sarif_data = json.load(f)
 
-# Parse into a Sarif object
-sarif_data = Sarif.model_validate(sarif_data)
+if __name__ == "__main__":
+    parser = ArgumentParser(description="SARIF Reviewer")
+    parser.add_argument("-f", "--file", help="Path to the SARIF file to review", required=True)
+    args = parser.parse_args()
+    
+    sarif_parser = SarifParser(args.file)
+    sarif_parser.get_contextual_results()
 
-# Access data via typed objects
-for run in sarif_data.runs:
-    for result in run.results or []:
-        print(f"Rule: {result.rule_id}, Level: {result.level}")
-        print(f"Message: {result.message.text}")
-
-        if result.locations:
-            for location in result.locations:
-                print(f"Location: {location.physical_location.artifact_location.uri}")
-                print(f"  Start Line: {location.physical_location.region.start_line}")
-                print(f"  Start Column: {location.physical_location.region.start_column}")
-                print(f"  End Line: {location.physical_location.region.end_line}")
-                print(f"  End Column: {location.physical_location.region.end_column}")
-        
-        if result.code_flows:
-            for code_flow in result.code_flows:
-                print(f"Code Flow: {code_flow}")
-                
-        print("-" * 40)
