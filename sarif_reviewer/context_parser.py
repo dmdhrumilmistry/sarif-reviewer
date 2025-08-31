@@ -1,7 +1,11 @@
 from importlib import import_module
+from pathlib import Path
 from typing import Dict
 
 from tree_sitter import Language, Parser
+from .logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class GenericLanguageManager:
@@ -46,15 +50,32 @@ class GenericLanguageManager:
 class ContextParser:
     pm = GenericLanguageManager()
 
-    def __init__(self, language_name: str = None):
+    def __init__(
+        self,
+        language_name: str,
+    ):
         self.language = ContextParser.pm.load_language(language_name)
         self.parser = Parser(self.language)
         self.tree = None
 
-    def parse(self, code: str):
-        tree = self.parser.parse(code.encode())
-        self.tree = tree
-        return self.tree.root_node
+    def parse(self, file_path: str, base_dir: str = None):
+        try:
+            if base_dir:
+                path = Path(base_dir) / Path(file_path)
+            else:
+                path = Path(file_path)
+
+            with open(path, "r", encoding="utf-8") as f:
+                code = f.read()
+
+                tree = self.parser.parse(code.encode())
+                self.tree = tree
+                logger.info(f"Successfully parsed file {file_path}")
+                return self.tree.root_node
+
+        except Exception:
+            logger.error(f"Error parsing file {file_path}", exc_info=True)
+            return None
 
     def get_tree(self):
         return self.tree
@@ -67,6 +88,7 @@ class ContextParser:
 
         cursor = self.tree.walk()
         cursor.goto_first_child_for_point(point)
+
         return cursor.node.text.decode(encoding)
 
 

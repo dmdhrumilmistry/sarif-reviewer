@@ -1,10 +1,11 @@
 [project]
 name = "sarif-reviewer"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI Reviewer for SARIF results"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "openai>=1.102.0",
     "sarif-pydantic>=0.5.3",
     "tree-sitter>=0.25.1",
     "tree-sitter-bash>=0.25.0",
